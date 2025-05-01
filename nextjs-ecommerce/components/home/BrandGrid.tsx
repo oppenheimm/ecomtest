@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -18,7 +20,10 @@ export default function BrandGrid({
         <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 place-items-center">
           {brands.map((b) => (
             <li key={b.name} className="w-full flex items-center justify-center">
-              <Link href={b.href} className="block grayscale hover:grayscale-0 transition">
+              <Link
+                href={b.href}
+                className="block md:grayscale hover:grayscale-0 md:hover:scale-105 transition"
+              >
                 <Image
                   src={b.logo.url}
                   alt={b.name}

@@ -1,38 +1,56 @@
 import { NextResponse } from 'next/server';
 
-/**
- * Super-minimal GraphQL stub that responds to the one query your
- * demo needs (`storeConfig`) and a sample `products` query.
- */
-export async function POST() {
-  const data = {
+const DB = {
+  'herrar/fatnadur': [
+    {
+      id: 1,
+      sku: 'shirt-001',
+      name: 'Classic Oxford Shirt',
+      price: 49.99,
+      image: '/demo/herrar/fatnadur/shirt.jpg',
+    },
+    {
+      id: 2,
+      sku: 'jeans-001',
+      name: 'Slim Fit Jeans',
+      price: 69.99,
+      image: '/demo/herrar/fatnadur/jeans.jpg',
+    },
+  ],
+  'herrar/skor': [
+    {
+      id: 3,
+      sku: 'sneaker-001',
+      name: 'Retro Sneaker',
+      price: 59.99,
+      image: '/demo/herrar/skor/sneaker.jpg',
+    },
+  ],
+  domur: [
+    {
+      id: 4,
+      sku: 'dress-001',
+      name: 'Summer Floral Dress',
+      price: 79.99,
+      image: '/demo/domur/dress.jpg',
+    },
+  ],
+};
+
+export async function POST(request: Request) {
+  const { query, variables } = await request.json();
+
+  // we only care about `categoryProducts(slug: "...")` queries
+  const match = query.match(/categoryProducts\s*\(\s*slug:\s*"(.*?)"/);
+  const slug = match?.[1] ?? '';
+
+  const items = DB[slug] ?? [];
+
+  return NextResponse.json({
     data: {
-      storeConfig: {
-        store_name: 'Mock Store',
-        base_currency_code: 'USD',
-      },
-      products: {
-        items: [
-          {
-            id: 1,
-            sku: 'demo-sku-1',
-            name: 'Demo T-Shirt',
-            price_range: {
-              minimum_price: { regular_price: { value: 19.99 } },
-            },
-          },
-          {
-            id: 2,
-            sku: 'demo-sku-2',
-            name: 'Demo Hoodie',
-            price_range: {
-              minimum_price: { regular_price: { value: 39.99 } },
-            },
-          },
-        ],
+      categoryProducts: {
+        items,
       },
     },
-  };
-
-  return NextResponse.json(data);
+  });
 }
