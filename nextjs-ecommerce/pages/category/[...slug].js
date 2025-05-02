@@ -14,8 +14,18 @@ async function fetchCategoryProducts(slugPath) {
               id
               sku
               name
-              price
-              image
+              price {
+                regularPrice {
+                  amount {
+                    value
+                    currency
+                  }
+                }
+              }
+              small_image {
+                url
+                label
+              }
             }
           }
         }
@@ -35,7 +45,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const slugArray = params.slug || [];
-  const slugPath = slugArray.join('/');          // "herrar/fatnadur"
+  const slugPath = slugArray.join('/');          // e.g. "men/shirts"
   const items = await fetchCategoryProducts(slugPath);
 
   return {
@@ -46,26 +56,34 @@ export async function getStaticProps({ params }) {
 
 /* --- Page component -------------------------------------------------- */
 export default function CategoryPage({ slugArray, items }) {
-  const title = slugArray.map((s) => s.toUpperCase()).join(' / ');
+  const title = slugArray
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(' / ');
 
   return (
-    <>
-      <Head><title>{title}</title></Head>
+    <div className="bg-white min-h-screen">
+      <Head>
+        <title>{title}</title>
+      </Head>
       <main className="max-w-7xl mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold mb-8">{title}</h1>
-
+        <h1 className="text-4xl font-bold mb-6 text-center">{title}</h1>
+        <p className="text-center text-gray-600 mb-12">
+          Explore our latest {title.toLowerCase()} collection curated just for you.
+        </p>
         {items.length === 0 ? (
-          <p>Engar vörur í þessum flokki ennþá.</p>
+          <p className="text-center text-gray-500">
+            No products found in this category yet.
+          </p>
         ) : (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {items.map((p) => (
-              <li key={p.id}>
-                <ProductCard p={p} />
+          <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {items.map((product) => (
+              <li key={product.id}>
+                <ProductCard p={product} />
               </li>
             ))}
           </ul>
         )}
       </main>
-    </>
+    </div>
   );
 }
